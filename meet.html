@@ -344,7 +344,7 @@
                     alert('Thank you for registering! Your meetup request has been submitted. We will contact you shortly with confirmation details.');
                     document.getElementById('loading').style.display = 'none';
                     document.querySelector('.submit-btn').disabled = false;
-                    resetForm();
+                    window.location.href = 'fan-confirm.html';
                 }, 2000);
             }
         }
