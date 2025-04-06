@@ -248,8 +248,16 @@
         document.getElementById('expiry').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
-            if (value.length > 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2);
+            if (value.length > 0) {
+                // Ensure month starts with 0 or 1
+                if (value.length === 1 && parseInt(value, 10) > 1) {
+                    value = '0' + value;
+                }
+                
+                // Auto-format with slash after month
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
             }
             
             e.target.value = value;
@@ -258,6 +266,40 @@
         document.getElementById('cvv').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '');
         });
+        
+        function validateExpiry(expiry) {
+            // Check format
+            if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+                return "Invalid format, use MM/YY";
+            }
+            
+            const [month, year] = expiry.split('/');
+            const monthNum = parseInt(month, 10);
+            
+            // Check if month is valid (1-12)
+            if (monthNum < 1 || monthNum > 12) {
+                return "Month must be between 01 and 12";
+            }
+            
+            // Get current date for comparison
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear() % 100; // Get last 2 digits
+            const currentMonth = currentDate.getMonth() + 1; // JS months are 0-based
+            
+            const expYear = parseInt(year, 10);
+            
+            // Check if card is expired
+            if (expYear < currentYear || (expYear === currentYear && monthNum < currentMonth)) {
+                return "Card has expired";
+            }
+            
+            // Check if year is within reasonable future range (e.g., not more than 10 years)
+            if (expYear > currentYear + 10) {
+                return "Expiry year too far in the future";
+            }
+            
+            return ""; // Valid
+        }
         
         function handlePayment(event) {
             event.preventDefault();
@@ -292,9 +334,9 @@
                 document.getElementById('expiry_error').textContent = 'Please enter expiry date';
                 isValid = false;
             } else {
-                const parts = expiry.split('/');
-                if (parts.length !== 2 || parts[0].length !== 2 || parts[1].length !== 2) {
-                    document.getElementById('expiry_error').textContent = 'Invalid format, use MM/YY';
+                const errorMessage = validateExpiry(expiry);
+                if (errorMessage) {
+                    document.getElementById('expiry_error').textContent = errorMessage;
                     isValid = false;
                 }
             }
