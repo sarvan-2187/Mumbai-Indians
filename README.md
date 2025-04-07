@@ -1,4 +1,4 @@
-# 23-CSE-113 CAPSTONE PROJECT
+# MUMBAI INDIANS FAN PAGE
 
 Click on the Image to View My Website
 
